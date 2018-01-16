@@ -27,8 +27,8 @@ public class QuizCardBuilder extends JFrame {
 	private JTextArea questionText;
 	private JTextArea answerText;
 	private JMenuBar menuBar;
-	private JMenu mnFile;
-	private JMenuItem mntmNew;
+	private JMenu menuBarFile;
+	private JMenuItem menuItemNew;
 
 	/**
 	 * Launch the application.
@@ -75,11 +75,11 @@ public class QuizCardBuilder extends JFrame {
 		menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 
-		mnFile = new JMenu("File");
-		menuBar.add(mnFile);
+		menuBarFile = new JMenu("File");
+		menuBar.add(menuBarFile);
 
-		mntmNew = new JMenuItem("New");
-		mnFile.add(mntmNew);
+		menuItemNew = new JMenuItem("New");
+		menuBarFile.add(menuItemNew);
 	}
 
 	public void gui() {
