@@ -1,19 +1,25 @@
 package e_flash_cards;
 
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.Font;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.JLabel;
 import javax.swing.JButton;
-import java.awt.Font;
-import javax.swing.JMenuBar;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class QuizCardPlayer extends JFrame {
 
@@ -50,44 +56,17 @@ public class QuizCardPlayer extends JFrame {
 		
 	}
 	
-	public void labels() {
-		questionLabel = new JLabel("Question");
-		questionLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		
-		answerLabel = new JLabel("Answer");
-		answerLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-	}
-	
-	public void menuBar() {
-		
-	}
-	
-	public void button() {
-		checkButton = new JButton("CHECK");
-		checkButton.setFont(new Font("Tahoma", Font.BOLD, 14));
-	}
-	
 	public void initComponents() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 650, 650);
-		{
-			menuBar = new JMenuBar();
-			setJMenuBar(menuBar);
-			{
-				menuBarFile = new JMenu("File");
-				menuBar.add(menuBarFile);
-				{
-					menuItemOpen = new JMenuItem("Open");
-					menuBarFile.add(menuItemOpen);
-				}
-			}
-		}
+		
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		
 		labels();
 		button();
+		menuBar();
 		
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
@@ -117,4 +96,74 @@ public class QuizCardPlayer extends JFrame {
 		);
 		contentPane.setLayout(gl_contentPane);
 	}
+	
+	public void labels() {
+		questionLabel = new JLabel("Question");
+		questionLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		
+		answerLabel = new JLabel("Answer");
+		answerLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+	}
+	
+	public void menuBar() {
+		menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+		
+		menuBarFile = new JMenu("File");
+		menuBar.add(menuBarFile);
+			
+		menuItemOpen = new JMenuItem("Open");
+		menuItemOpen.addActionListener(new OpenListener());
+		menuBarFile.add(menuItemOpen);
+			
+		
+	}
+	
+	public void button() {
+		checkButton = new JButton("CHECK");
+		checkButton.setFont(new Font("Tahoma", Font.BOLD, 14));
+	}
+	
+	//Logic:
+	
+	public void readFile() {
+		
+		try (BufferedReader reader = new BufferedReader(new FileReader("C:\\Users\\Kondzik\\Desktop\\EFlashCardsSaves\\Hello.txt"))){
+			
+			String line = null;
+			
+			while((line = reader.readLine()) != null) {
+				
+				questionLabel.setText(line);
+				
+			}
+			
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+	}
+	
+	
+	//End of Logic
+	
+	// Action Listeners Inner Classes
+	
+	public class OpenListener implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			
+			readFile();
+			
+			
+		}
+		
+	}
+	
 }
