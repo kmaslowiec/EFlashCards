@@ -2,25 +2,23 @@ package e_flash_cards;
 
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
-import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-import javax.swing.JToolBar;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 public class QuizCardBuilder extends JFrame {
 
@@ -33,7 +31,9 @@ public class QuizCardBuilder extends JFrame {
 	private JMenu menuBarFile;
 	private JMenuItem menuItemNew;
 	private JButton nextButton;
-
+	private ArrayList<QuizCard> cards = new ArrayList<>();
+	private JMenuItem menuItemClear;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -146,14 +146,32 @@ public class QuizCardBuilder extends JFrame {
 		menuItemNew = new JMenuItem("New");
 		menuItemNew.addActionListener(new NewListener());
 		menuBarFile.add(menuItemNew);
+		
+		menuItemClear = new JMenuItem("Clear");
+		menuItemClear.addActionListener(new ClearListener());
+		menuBarFile.add(menuItemClear);
 	}
 	
 	// Logic:
+	/**
+	 * Clears the answer and question JTextFields
+	 */
+	public void clear() {
+		questionText.setText(null);
+		answerText.setText(null);
+		questionText.requestFocus();
+	}
 	
 	public void printText() {
 		
 		String text = questionText.getText();
 		System.out.println(text);
+		
+	}
+	
+	public void addCard() {
+		
+		cards.add(new QuizCard(questionText.getText(), answerText.getText()));
 		
 	}
 
@@ -170,20 +188,32 @@ public class QuizCardBuilder extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 
-			questionText.setText(null);
-			answerText.setText(null);
-			questionText.requestFocus();
+			/*for(QuizCard print : cards) {
+				System.out.println(print.getQuestion());
+				System.out.println(print.getAnswer());
+			}*/
 
 		}
 
+	}
+	
+	public class ClearListener implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			clear();
+			
+		}
+		
 	}
 	
 	public class ButtonListener implements ActionListener{
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			printText();
 			
+			addCard();
+			clear();
 		}
 		
 	}
