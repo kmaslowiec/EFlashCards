@@ -4,12 +4,17 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -19,9 +24,15 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 
 public class QuizCardBuilder extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JLabel questionLabel;
 	private JLabel answerLabel;
@@ -33,7 +44,9 @@ public class QuizCardBuilder extends JFrame {
 	private JButton nextButton;
 	private ArrayList<QuizCard> cards = new ArrayList<>();
 	private JMenuItem menuItemClear;
-	
+	private JMenuItem menuItemSave;
+	private static QuizCardBuilder frame;
+
 	/**
 	 * Launch the application.
 	 */
@@ -41,7 +54,8 @@ public class QuizCardBuilder extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					QuizCardBuilder frame = new QuizCardBuilder();
+
+					frame = new QuizCardBuilder();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -73,7 +87,7 @@ public class QuizCardBuilder extends JFrame {
 		questionArea();
 		answerArea();
 		buttonNext();
-		
+
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING).addGroup(gl_contentPane
 				.createSequentialGroup()
@@ -120,17 +134,17 @@ public class QuizCardBuilder extends JFrame {
 		answerText.setBorder(BorderFactory.createLoweredBevelBorder());
 
 	}
-	
+
 	/**
 	 * Creates button to "switch" to the next card
 	 */
-	
+
 	public void buttonNext() {
 		nextButton = new JButton("NEXT CARD");
 		nextButton.addActionListener(new ButtonListener());
 		nextButton.setFont(new Font("Tahoma", Font.BOLD, 11));
 	}
-	
+
 	/**
 	 * Creates Menu Bar with the items
 	 * 
@@ -146,12 +160,16 @@ public class QuizCardBuilder extends JFrame {
 		menuItemNew = new JMenuItem("New");
 		menuItemNew.addActionListener(new NewListener());
 		menuBarFile.add(menuItemNew);
-		
+
 		menuItemClear = new JMenuItem("Clear");
 		menuItemClear.addActionListener(new ClearListener());
+
+		menuItemSave = new JMenuItem("Save");
+		menuItemSave.addActionListener(new SaveListener());
+		menuBarFile.add(menuItemSave);
 		menuBarFile.add(menuItemClear);
 	}
-	
+
 	// Logic:
 	/**
 	 * Clears the answer and question JTextFields
@@ -161,18 +179,45 @@ public class QuizCardBuilder extends JFrame {
 		answerText.setText(null);
 		questionText.requestFocus();
 	}
-	
+
+	/**
+	 * Temp method
+	 */
 	public void printText() {
-		
+
 		String text = questionText.getText();
 		System.out.println(text);
-		
+
 	}
-	
+
+	/**
+	 * Logic: Saving the cards
+	 * 
+	 * @param file
+	 */
+
+	public void saveFile(File file) {
+
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(file + ".txt"))) {
+
+			// if (questionText.getText() != null && answerText.getText() != null) {
+
+			for (QuizCard card : cards) {
+				writer.write(card.getQuestion() + "/");
+				writer.write(card.getAnswer() + System.lineSeparator());
+			}
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
 	public void addCard() {
-		
+
 		cards.add(new QuizCard(questionText.getText(), answerText.getText()));
-		
+
 	}
 
 	// Action listeners:
@@ -188,34 +233,72 @@ public class QuizCardBuilder extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 
-			/*for(QuizCard print : cards) {
-				System.out.println(print.getQuestion());
-				System.out.println(print.getAnswer());
-			}*/
+			clear();
+			cards.clear();
 
 		}
 
 	}
-	
-	public class ClearListener implements ActionListener{
+
+	/**
+	 * 
+	 * Action: save cards ArrayList to the txt file
+	 *
+	 */
+
+	public class SaveListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			addCard();
+			
+			JFileChooser fileSave = new JFileChooser();
+			FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files","txt");
+			fileSave.addChoosableFileFilter(filter);
+			fileSave.setAcceptAllFileFilterUsed(false);
+			fileSave.setCurrentDirectory(new File("C:\\Users\\Kondzik\\Desktop\\EFlashCardsSaves"));
+			fileSave.showSaveDialog(frame);
+			
+			
+		
+			saveFile(fileSave.getSelectedFile());
+
+		}
+
+	}
+
+	/**
+	 * 
+	 * Action: Clears both JTextFields (questionText and answerText)
+	 *
+	 */
+
+	public class ClearListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			clear();
-			
+
 		}
-		
+
 	}
-	
-	public class ButtonListener implements ActionListener{
+
+	/**
+	 * 
+	 * Action: Adds button function. Takes text from both JTextFields and adds to
+	 * cards ArrayList
+	 *
+	 */
+
+	public class ButtonListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			
+
 			addCard();
 			clear();
 		}
-		
+
 	}
-	
+
 }
