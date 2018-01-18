@@ -33,6 +33,9 @@ public class QuizCardPlayer extends JFrame {
 	private JMenu menuBarFile;
 	private JMenuItem menuItemOpen;
 	private ArrayList<QuizCard> cards = new ArrayList<>();
+	private QuizCard currentCard;
+	private int currentCardIndex;
+	private boolean isShowAnswer;
 	private static QuizCardPlayer frame;
 
 	/**
@@ -57,90 +60,79 @@ public class QuizCardPlayer extends JFrame {
 	public QuizCardPlayer() {
 		setTitle("Flash Cards");
 		initComponents();
-		
+
 	}
-	
+
 	public void initComponents() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 650, 650);
-		
+
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
-		
+
 		labels();
 		button();
 		menuBar();
-		
+
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
-		gl_contentPane.setHorizontalGroup(
-			gl_contentPane.createParallelGroup(Alignment.LEADING)
+		gl_contentPane.setHorizontalGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_contentPane.createSequentialGroup()
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-						.addGroup(gl_contentPane.createSequentialGroup()
-							.addContainerGap()
-							.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-								.addComponent(answerLabel)
-								.addComponent(questionLabel)))
-						.addGroup(gl_contentPane.createSequentialGroup()
-							.addGap(239)
-							.addComponent(checkButton)))
-					.addContainerGap(296, Short.MAX_VALUE))
-		);
-		gl_contentPane.setVerticalGroup(
-			gl_contentPane.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_contentPane.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(questionLabel)
-					.addGap(223)
-					.addComponent(checkButton)
-					.addGap(19)
-					.addComponent(answerLabel)
-					.addContainerGap(312, Short.MAX_VALUE))
-		);
+						.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+								.addGroup(gl_contentPane.createSequentialGroup().addContainerGap()
+										.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+												.addComponent(answerLabel).addComponent(questionLabel)))
+								.addGroup(gl_contentPane.createSequentialGroup().addGap(239).addComponent(checkButton)))
+						.addContainerGap(296, Short.MAX_VALUE)));
+		gl_contentPane.setVerticalGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_contentPane.createSequentialGroup().addContainerGap().addComponent(questionLabel)
+						.addGap(223).addComponent(checkButton).addGap(19).addComponent(answerLabel)
+						.addContainerGap(312, Short.MAX_VALUE)));
 		contentPane.setLayout(gl_contentPane);
 	}
-	
+
 	public void labels() {
 		questionLabel = new JLabel("Question");
 		questionLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		
+
 		answerLabel = new JLabel("Answer");
 		answerLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
 	}
-	
+
 	public void menuBar() {
 		menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
-		
+
 		menuBarFile = new JMenu("File");
 		menuBar.add(menuBarFile);
-			
+
 		menuItemOpen = new JMenuItem("Open");
 		menuItemOpen.addActionListener(new OpenListener());
 		menuBarFile.add(menuItemOpen);
-			
-		
+
 	}
-	
+
 	public void button() {
 		checkButton = new JButton("CHECK");
+		checkButton.addActionListener(new checkButtonListener());
 		checkButton.setFont(new Font("Tahoma", Font.BOLD, 14));
 	}
-	
-	//Logic:
-	
+
+	// Logic:
+
 	public void readFile(File file) {
-		
-		try (BufferedReader reader = new BufferedReader(new FileReader(file))){
-			
+
+		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+
 			String line = null;
-			
-			while((line = reader.readLine()) != null) {
-				
-				splitString(line);
-				
+
+			while ((line = reader.readLine()) != null) {
+
+				makeCard(line);
+
 			}
+			
+			
 			
 			
 		} catch (FileNotFoundException e) {
@@ -150,38 +142,87 @@ public class QuizCardPlayer extends JFrame {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		showNextCard();
+	}
+
+	public void makeCard(String lineToSplit) {
+	
+		String[] result = lineToSplit.split("/");
+		QuizCard card = new QuizCard(result[0], result[1]);
+		cards.add(card);
+	
+	}
+	
+	public void showNextCard() {
+		currentCard = cards.get(currentCardIndex);
+		currentCardIndex++;
+		questionLabel.setText(currentCard.getQuestion());
+		checkButton.setText("Show answer");
+		answerLabel.setText(null);
+		isShowAnswer =true;
+		
 		
 	}
 	
-	public void splitString(String lineToSplit) {
+	/*public void displayQuestion() {
 		
-		String[] result;
-		
-		result = lineToSplit.split("/");
-		
-		questionLabel.setText(result[0]);
-		answerLabel.setText(result[1]);
-		
+		String text = cards.get(0).getQuestion();
+		questionLabel.setText(text);
 		
 	}
 	
-	
-	//End of Logic
-	
+	public void displayAnswer() {
+		
+		String text = cards.get(0).getAnswer();
+		answerLabel.setText(text);
+		
+	}*/
+
+	// End of Logic
+
 	// Action Listeners Inner Classes
-	
-	public class OpenListener implements ActionListener{
+
+	public class OpenListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			
+			cards.clear();
 			JFileChooser op = new JFileChooser();
 			op.showOpenDialog(frame);
 			readFile(op.getSelectedFile());
 			
 			
+			
+		}
+
+	}
+	
+	public class checkButtonListener implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			
+			if(isShowAnswer) {
+				answerLabel.setText(currentCard.getAnswer());
+				checkButton.setText("Next Card");
+				isShowAnswer = false;
+			}else {
+				if(currentCardIndex<cards.size()) {
+					showNextCard();
+					
+				}
+				if(currentCardIndex == cards.size()) {
+					questionLabel.setText("That was last card");
+					answerLabel.setText(null);
+					checkButton.setVisible(false);
+				}
+					
+			}
+			
+			
 		}
 		
 	}
-	
+
 }
