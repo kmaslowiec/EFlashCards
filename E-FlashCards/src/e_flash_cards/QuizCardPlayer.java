@@ -2,15 +2,19 @@ package e_flash_cards;
 
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -18,8 +22,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 public class QuizCardPlayer extends JFrame {
 
@@ -30,6 +32,8 @@ public class QuizCardPlayer extends JFrame {
 	private JMenuBar menuBar;
 	private JMenu menuBarFile;
 	private JMenuItem menuItemOpen;
+	private ArrayList<QuizCard> cards = new ArrayList<>();
+	private static QuizCardPlayer frame;
 
 	/**
 	 * Launch the application.
@@ -38,7 +42,7 @@ public class QuizCardPlayer extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					QuizCardPlayer frame = new QuizCardPlayer();
+					frame = new QuizCardPlayer();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -126,15 +130,15 @@ public class QuizCardPlayer extends JFrame {
 	
 	//Logic:
 	
-	public void readFile() {
+	public void readFile(File file) {
 		
-		try (BufferedReader reader = new BufferedReader(new FileReader("C:\\Users\\Kondzik\\Desktop\\EFlashCardsSaves\\Hello.txt"))){
+		try (BufferedReader reader = new BufferedReader(new FileReader(file))){
 			
 			String line = null;
 			
 			while((line = reader.readLine()) != null) {
 				
-				questionLabel.setText(line);
+				splitString(line);
 				
 			}
 			
@@ -149,6 +153,18 @@ public class QuizCardPlayer extends JFrame {
 		
 	}
 	
+	public void splitString(String lineToSplit) {
+		
+		String[] result;
+		
+		result = lineToSplit.split("/");
+		
+		questionLabel.setText(result[0]);
+		answerLabel.setText(result[1]);
+		
+		
+	}
+	
 	
 	//End of Logic
 	
@@ -159,7 +175,9 @@ public class QuizCardPlayer extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			
-			readFile();
+			JFileChooser op = new JFileChooser();
+			op.showOpenDialog(frame);
+			readFile(op.getSelectedFile());
 			
 			
 		}
